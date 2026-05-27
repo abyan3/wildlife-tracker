@@ -1,0 +1,15 @@
+services:
+  api:
+    build: ./api
+    ports:
+      - "3000:3000"
+    environment:
+      - SUPABASE_URL=https://vbfhpbxcpcxjheuhwlxg.supabase.co
+      - SUPABASE_SERVICE_ROLE_KEY=sb_publishable_iXe6UjUeXbrR19VYdHjpSA_D5UAiw8-
+
+  client:
+    build: ./client
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
