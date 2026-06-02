@@ -182,3 +182,24 @@ To also delete the image
 ```bash
 docker rmi wildlife-client:1.0
 ```
+
+
+## Caching
+```bash
+npm install node-cache
+```
+
+I used node-cache for the server-side caching to reduces the number of requests hitting Supabase. With this, the database only gets queried when the cache is cold or expired rather than for every request.
+I used cache-control headers for the client side to reduce the number of requests hitting the API server. If a browser already has a cached response that hasn't expired, it wont even make a request again. This is helpful for data a user might view multiple times in one session.
+
+
+### GET /parks and GET /parks/:id -1 hour
+
+Since the park data doesn’t change very much the list of park names and descriptions often stays the same. Caching for an hour mean the server only retrieve from superbase once per hour. The client side caching also tell the browser to reuse the same cached list of parts for an hour before requesting again.
+
+### GET /sightings and GET /sightings/:user_id - 10 minutes
+
+Sighting change somewhat frequently as users can submit new ones. I decided to do 10 minutes for the caching because new sightings show up but we also want to reduce the amount of loads especially when it gets busy. The cache key also filters so requests are separated from each other. After creating a sighting the next request always retrieves new data that way the new sighting will appear immediately and doesn’t have to wait for the cache to expire.
+
+### GET /species and GET /species/:id - 1 day
+The species information pretty much doesn’t change. By caching for each day the server doesn't need to query the Supabase for the data. The client header matches this so that the browser also holds the data for a day.
